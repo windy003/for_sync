@@ -1,0 +1,1 @@
+python "D:\files\using\P_md2html\md2h.py"  %*

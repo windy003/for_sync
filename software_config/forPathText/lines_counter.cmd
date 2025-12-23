@@ -1,0 +1,1 @@
+py  "D:\files\using\P_lines_C\lines_counter.py"

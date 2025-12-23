@@ -1,0 +1,1 @@
+python "D:\files\using\P_compare_tree_items\compare_tree_items.py"   %*
