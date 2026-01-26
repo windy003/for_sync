@@ -131,3 +131,8 @@ SetWorkingDir A_ScriptDir
 
 
 
+;_________________________________________________________
+
+
+; 核心映射：右 Alt → Menu 键
+RAlt::AppsKey
