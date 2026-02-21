@@ -29,12 +29,19 @@
       };
 
       // 应用样式
+      // Article/Notes 类内容选择器（Draft.js 渲染的 X.com 长文章）
+      const articleSelectors = [
+          'div[data-block="true"]',
+          '.public-DraftStyleDefault-block',
+      ].join(', ');
+
       function applyStyles() {
           const style = document.createElement('style');
           style.id = 'tweet-custom-style-init';
           style.textContent = `
               [data-testid="tweetText"],
-              article [lang] {
+              article [lang],
+              ${articleSelectors} {
                   font-size: ${settings.fontSize}px !important;
                   line-height: ${settings.lineHeight}px !important;
               }
@@ -136,11 +143,23 @@
           element.classList.add('chinese-text-processed');
       }
 
-      // 处理所有推文
+      // 处理所有推文及 Article/Notes
       function processAllTweets() {
           // 处理所有推文文本，不限语言
           const tweets = document.querySelectorAll('[data-testid="tweetText"], article [lang]');
           tweets.forEach(processTweet);
+
+          // 处理 Draft.js 渲染的 Article/Notes 段落块
+          const articleTexts = document.querySelectorAll(articleSelectors);
+          articleTexts.forEach(processTweet);
+
+          // 处理 Draft.js 的文字 span（字间距用）
+          const draftSpans = document.querySelectorAll('span[data-text="true"]');
+          draftSpans.forEach(span => {
+              if (!span.closest('.chinese-text-processed')) {
+                  processTextNode(span.firstChild || span);
+              }
+          });
       }
 
       // 监听DOM变化
@@ -151,11 +170,15 @@
                       if (node.nodeType === 1) {
                           // 检查新添加的节点是否是推文或包含推文
                           if (node.matches && (node.matches('[data-testid="tweetText"]') ||
-                              node.matches('article [lang]'))) {
+                              node.matches('article [lang]') ||
+                              node.matches('div[data-block="true"]') ||
+                              node.matches('.public-DraftStyleDefault-block'))) {
                               processTweet(node);
                           }
-                          // 检查新节点的子元素
-                          const tweets = node.querySelectorAll('[data-testid="tweetText"], article [lang]');
+                          // 检查新节点的子元素（包含 Article/Notes 内容）
+                          const tweets = node.querySelectorAll(
+                              `[data-testid="tweetText"], article [lang], ${articleSelectors}`
+                          );
                           tweets.forEach(processTweet);
                       }
                   });
@@ -311,7 +334,8 @@
           style.id = 'tweet-custom-style';
           style.textContent = `
               [data-testid="tweetText"],
-              article [lang] {
+              article [lang],
+              ${articleSelectors} {
                   font-size: ${settings.fontSize}px !important;
                   line-height: ${settings.lineHeight}px !important;
               }
