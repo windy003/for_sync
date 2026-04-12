@@ -1,2 +1,0 @@
-变量名：RCLONE_CONFIG
-变量值：D:\rclone\rclone.conf
