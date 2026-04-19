@@ -136,3 +136,27 @@ SetWorkingDir A_ScriptDir
 
 ; 核心映射：右 Alt → Menu 键
 RAlt::AppsKey
+
+
+;_________________________________________________________
+
+; ExplorerGuard — Ctrl+W 保留最后一个资源管理器窗口，Alt+F4 不拦截
+
+CountExplorerWindows() {
+    shell := ComObject("Shell.Application")
+    return shell.Windows.Count
+}
+
+#HotIf WinActive("ahk_class CabinetWClass")
+$^w:: {
+    if CountExplorerWindows() <= 1 {
+        ToolTip("这是最后一个资源管理器窗口，已阻止关闭`n按 Alt+F4 可强制关闭")
+        SetTimer(() => ToolTip(), -2000)
+        return
+    }
+    Suspend(true)
+    Send("^w")
+    Sleep(50)
+    Suspend(false)
+}
+#HotIf
