@@ -159,4 +159,36 @@ $^w:: {
     Sleep(50)
     Suspend(false)
 }
+
+; Alt+Enter: 地址栏选中状态下，在新标签页打开当前路径
+!Enter:: {
+    clipSaved := A_Clipboard
+    A_Clipboard := ""
+
+    Send("^a")
+    Sleep(50)
+    Send("^c")
+
+    if !ClipWait(1) {
+        A_Clipboard := clipSaved
+        return
+    }
+    path := A_Clipboard
+
+    Send("{Escape}")
+    Sleep(100)
+
+    Send("^t")
+    Sleep(300)
+
+    Send("!d")
+    Sleep(150)
+    A_Clipboard := path
+    Send("^v")
+    Sleep(50)
+    Send("{Enter}")
+
+    Sleep(100)
+    A_Clipboard := clipSaved
+}
 #HotIf
