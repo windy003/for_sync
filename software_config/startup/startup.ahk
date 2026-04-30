@@ -1,3 +1,4 @@
+#Requires AutoHotkey v2.0
 #SingleInstance Force
 SetWorkingDir A_ScriptDir
 
@@ -35,53 +36,34 @@ SetWorkingDir A_ScriptDir
     }
 }
 
-
-;________________________________________________________________________
-
-#Requires AutoHotkey v2.0
-#SingleInstance Force
-
-; Ctrl+Shift+B hotkey
+; Ctrl+Shift+B: 在资源管理器或桌面创建新文本文档
 ^+b:: {
-    ; Get the current active window
     WinClass := WinGetClass("A")
 
-    ; Check if current window is Desktop or Explorer
     if (WinClass == "Progman" || WinClass == "WorkerW" || WinClass == "CabinetWClass" || WinClass == "ExploreWClass") {
-        ; Get current directory path
         if (WinClass == "Progman" || WinClass == "WorkerW") {
-            ; Desktop
             CurrentPath := A_Desktop
         } else {
-            ; Explorer window - use address bar method for Win11 tab support
             CurrentPath := ""
-
-            ; Save current clipboard
             ClipboardBackup := ClipboardAll()
             A_Clipboard := ""
 
             try {
-                ; Focus address bar and copy path
-                Send("!d")  ; Alt+D to focus address bar
-                Sleep(50)   ; Wait for address bar to be selected
-                Send("^c")  ; Copy the path
+                Send("!d")
+                Sleep(50)
+                Send("^c")
 
-                ; Wait for clipboard to contain text
                 if ClipWait(1) {
                     CurrentPath := A_Clipboard
                 }
 
-                ; Restore focus to file list
                 Send("{Escape}")
                 Sleep(50)
             } catch {
-                ; Ignore errors
             }
 
-            ; Restore original clipboard
             A_Clipboard := ClipboardBackup
 
-            ; Fallback to Shell.Application if address bar method failed
             if (CurrentPath == "") {
                 try {
                     for window in ComObject("Shell.Application").Windows {
@@ -91,13 +73,11 @@ SetWorkingDir A_ScriptDir
                         }
                     }
                 } catch {
-                    ; Final fallback to desktop
                     CurrentPath := A_Desktop
                 }
             }
         }
 
-        ; Generate unique filename
         Counter := 1
         loop {
             FileName := "新建文本文档"
@@ -107,40 +87,28 @@ SetWorkingDir A_ScriptDir
 
             FullPath := CurrentPath . "\" . FileName
 
-            ; Check if file exists
             if (!FileExist(FullPath))
                 break
 
             Counter++
         }
 
-        ; Create the text file
         try {
             FileAppend("", FullPath)
-
-            ; Show success message
             ToolTip("已创建文件: " . FileName)
             SetTimer(() => ToolTip(), -2000)
         } catch Error as err {
-            ; Show error message
             ToolTip("创建文件失败: " . err.message)
             SetTimer(() => ToolTip(), -3000)
         }
     }
 }
 
-
-
-;_________________________________________________________
-
-
 ; 核心映射：右 Alt → Menu 键
 RAlt::AppsKey
 
-
 ;_________________________________________________________
-
-; ExplorerGuard — Ctrl+W 保留最后一个资源管理器窗口，Alt+F4 不拦截
+; 以下热键仅在资源管理器窗口中生效
 
 CountExplorerWindows() {
     shell := ComObject("Shell.Application")
@@ -148,6 +116,8 @@ CountExplorerWindows() {
 }
 
 #HotIf WinActive("ahk_class CabinetWClass")
+
+; Ctrl+W: 保留最后一个资源管理器窗口
 $^w:: {
     if CountExplorerWindows() <= 1 {
         ToolTip("这是最后一个资源管理器窗口，已阻止关闭`n按 Alt+F4 可强制关闭")
@@ -158,6 +128,14 @@ $^w:: {
     Send("^w")
     Sleep(50)
     Suspend(false)
+}
+
+; Alt+F4: 关闭资源管理器窗口前弹出确认对话框
+!F4:: {
+    result := MsgBox("确定要关闭此资源管理器窗口吗？", "关闭确认", "YesNo Icon?")
+    if (result = "Yes") {
+        WinClose("A")
+    }
 }
 
 ; Alt+Enter: 地址栏选中状态下，在新标签页打开当前路径
@@ -191,4 +169,5 @@ $^w:: {
     Sleep(100)
     A_Clipboard := clipSaved
 }
+
 #HotIf
