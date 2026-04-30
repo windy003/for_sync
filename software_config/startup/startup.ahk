@@ -132,8 +132,8 @@ $^w:: {
 
 ; Alt+F4: 关闭资源管理器窗口前弹出确认对话框
 !F4:: {
-    result := MsgBox("确定要关闭此资源管理器窗口吗？", "关闭确认", "YesNo Icon?")
-    if (result = "Yes") {
+    result := MsgBox("确定要关闭此资源管理器窗口吗？", "关闭确认", "OKCancel Icon?")
+    if (result = "OK") {
         WinClose("A")
     }
 }
@@ -168,6 +168,21 @@ $^w:: {
 
     Sleep(100)
     A_Clipboard := clipSaved
+}
+
+#HotIf
+
+;_________________________________________________________
+; 以下热键仅在 Chrome 浏览器中生效
+
+#HotIf WinActive("ahk_exe chrome.exe")
+
+; Alt+F4: 关闭 Chrome 窗口前弹出确认对话框
+!F4:: {
+    result := MsgBox("确定要关闭 Chrome 浏览器吗？", "关闭确认", "OKCancel Icon?")
+    if (result = "OK") {
+        WinClose("A")
+    }
 }
 
 #HotIf
