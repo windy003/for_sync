@@ -139,7 +139,20 @@ $^w:: {
 }
 
 ; Alt+Enter: 地址栏选中状态下，在新标签页打开当前路径
-!Enter:: {
+; 仅当地址栏（Edit控件）获得焦点时才拦截，否则透传给系统显示文件属性
+$!Enter:: {
+    try {
+        focusedClass := ControlGetClassNN(ControlGetFocus("A"))
+    } catch {
+        focusedClass := ""
+    }
+    if (focusedClass != "Edit") {
+        Suspend(true)
+        Send("!{Enter}")
+        Suspend(false)
+        return
+    }
+
     clipSaved := A_Clipboard
     A_Clipboard := ""
 
