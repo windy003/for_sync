@@ -130,11 +130,17 @@ $^w:: {
     Suspend(false)
 }
 
-; Alt+F4: 关闭资源管理器窗口前弹出确认对话框
+; Alt+F4: 关闭资源管理器窗口前弹出确认对话框（关闭整个窗口，包括所有标签）
 !F4:: {
     result := MsgBox("确定要关闭此资源管理器窗口吗？", "关闭确认", "OKCancel Icon?")
     if (result = "OK") {
-        WinClose("A")
+        hwnd := WinGetID("A")
+        loop {
+            if !WinExist("ahk_id " hwnd)
+                break
+            WinClose("ahk_id " hwnd)
+            Sleep(50)
+        }
     }
 }
 
