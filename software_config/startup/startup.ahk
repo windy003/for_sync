@@ -2,6 +2,17 @@
 #SingleInstance Force
 SetWorkingDir A_ScriptDir
 
+; 自动以管理员身份运行（操作任务管理器等需要管理员权限）
+if !A_IsAdmin {
+    try {
+        if A_IsCompiled
+            Run('*RunAs "' A_ScriptFullPath '" /restart')
+        else
+            Run('*RunAs "' A_AhkPath '" /restart "' A_ScriptFullPath '"')
+    }
+    ExitApp()
+}
+
 ; Win+E: 在现有窗口创建新标签，或打开新窗口
 #e:: {
     explorerHwnd := WinExist("ahk_class CabinetWClass")
