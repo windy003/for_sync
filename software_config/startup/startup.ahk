@@ -2,6 +2,9 @@
 #SingleInstance Force
 SetWorkingDir A_ScriptDir
 
+; 记录最近关闭的资源管理器标签路径（栈，后进先出），用于 Ctrl+Shift+T 恢复
+global ClosedTabs := []
+
 ; 自动以管理员身份运行（操作任务管理器等需要管理员权限）
 if !A_IsAdmin {
     try {
@@ -126,6 +129,25 @@ CountExplorerWindows() {
     return shell.Windows.Count
 }
 
+; 通过地址栏读取当前激活标签的文件夹路径
+; （Win11 多标签共用同一 HWND，无法用 COM 按 HWND 区分激活标签，必须走地址栏）
+GetActiveExplorerPath() {
+    path := ""
+    clipSaved := ClipboardAll()
+    A_Clipboard := ""
+    try {
+        Send("!d")
+        Sleep(60)
+        Send("^c")
+        if ClipWait(0.5)
+            path := A_Clipboard
+        Send("{Escape}")
+        Sleep(30)
+    }
+    A_Clipboard := clipSaved
+    return path
+}
+
 #HotIf WinActive("ahk_class CabinetWClass")
 
 ; Ctrl+W: 保留最后一个资源管理器窗口
@@ -135,10 +157,39 @@ $^w:: {
         SetTimer(() => ToolTip(), -2000)
         return
     }
+    ; 关闭前记录当前激活标签路径，供 Ctrl+Shift+T 恢复
+    path := GetActiveExplorerPath()
+    if (path != "")
+        ClosedTabs.Push(path)
     Suspend(true)
     Send("^w")
     Sleep(50)
     Suspend(false)
+}
+
+; Ctrl+Shift+T: 在新标签页恢复最近关闭的标签
+^+t:: {
+    if (ClosedTabs.Length < 1) {
+        ToolTip("没有可恢复的标签")
+        SetTimer(() => ToolTip(), -1500)
+        return
+    }
+    path := ClosedTabs.Pop()
+
+    Send("^t")
+    Sleep(300)
+
+    Send("!d")
+    Sleep(150)
+
+    clipSaved := A_Clipboard
+    A_Clipboard := path
+    Send("^v")
+    Sleep(50)
+    Send("{Enter}")
+
+    Sleep(100)
+    A_Clipboard := clipSaved
 }
 
 ; Alt+F4: 关闭资源管理器窗口前弹出确认对话框（关闭整个窗口，包括所有标签）
