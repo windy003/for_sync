@@ -1,0 +1,1 @@
+&  wscript "D:\files\using\Web\hymns\switch.vbs"
