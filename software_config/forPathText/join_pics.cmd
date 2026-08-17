@@ -1,1 +1,0 @@
-start /B pythonw  "D:\files\using\P_join_pics\image_composer_pyqt.py" 
