@@ -1,2 +1,0 @@
-ydl_zms_close.ps1
-ydl_zms_start.ps1

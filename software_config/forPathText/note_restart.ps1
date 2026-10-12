@@ -1,2 +1,0 @@
-note_close.ps1
-note_start.ps1
