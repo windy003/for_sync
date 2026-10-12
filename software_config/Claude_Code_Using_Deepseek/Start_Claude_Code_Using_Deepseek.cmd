@@ -1,0 +1,7 @@
+setx ANTHROPIC_BASE_URL "https://api.deepseek.com/anthropic"
+setx ANTHROPIC_AUTH_TOKEN "sk-bd3ef09c4ec843dc96519398e26cc952"
+setx ANTHROPIC_MODEL "deepseek-flash[1m]"
+setx ANTHROPIC_DEFAULT_OPUS_MODEL "deepseek-flash[1m]"
+setx ANTHROPIC_DEFAULT_SONNET_MODEL "deepseek-flash[1m]"
+setx ANTHROPIC_DEFAULT_HAIKU_MODEL "deepseek-flash"
+setx CLAUDE_CODE_SUBAGENT_MODEL "deepseek-flash"
